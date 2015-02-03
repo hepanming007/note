@@ -36,9 +36,12 @@ Usage: php [options] [-f] <file> [--] [args...]
   --rc <name>      Show information about class <name>.
   --re <name>      Show information about extension <name>.
   --ri <name>      Show configuration for extension <name>.
-==============================================================================================================
-查看php.ini 信息
-php -i
-列子查看memcache 扩展
+##############################################常用例子#########################################################
+php -i 查看php.ini 信息
+php -ini 查看读取的php.ini的具体路径
+php -f <file> 执行php文件
+php -m 查看扩展信息
 php --ri memcache 查看memcache的配置信息
 php --re memcache 查看memcache的类结构
+php -v 查看php版本信息
+##############################################常用例子#########################################################
