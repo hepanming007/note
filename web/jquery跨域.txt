@@ -1,0 +1,50 @@
+<!--BigTa-->
+<script type="text/javascript">
+    function bigTa(){
+        var bigTaArticleId = "<?php echo $article['ArticleID'];?>";
+        var bigTatimes = $("#atonclick_<?php echo $article['ArticleID'];?> em").html();
+        var bigTasourceId = 2;
+        var bigTaUrl = '';
+       // console.log(bigTatimes);
+
+        if(bigTatimes==1){
+            var bigTaTitle = $('h1>a').html();
+            var bigTaContent = $('.ArticleCont').html();
+            var bigTaTabname = '自发布';
+            var params = {
+                title:bigTaTitle,
+                content:encodeURI(bigTaContent),
+                tabname:bigTaTabname,
+                id:bigTaArticleId,
+                times:bigTatimes,
+                sourceid:bigTasourceId
+            };
+            bigTaUrl = 'http://bigta.cnfol.com/index.php/articlejk/addContent';
+        }else{
+            var params = {
+                id:bigTaArticleId,
+                times:bigTatimes,
+                sourceid:bigTasourceId
+            };
+            bigTaUrl = 'http://bigta.cnfol.com/index.php/articlejk/updateTimes';
+        }
+        if($.browser.msie){
+            var urlParams = jQuery.param(params);
+            var bigTaUrl = bigTaUrl+'?'+urlParams
+            $('#bigTaFrame').attr('src',bigTaUrl);
+        }else{
+            $.ajax({
+                type: "POST",
+                url: bigTaUrl,
+                data: params,
+                dataType: "json",
+                success: function (data) {
+
+                }
+            });
+        }
+    }
+
+</script>
+<iframe id="bigTaFrame" src="###" style="display:none"></iframe>
+<!--BigTa-->
