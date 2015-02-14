@@ -1,10 +1,9 @@
 ---
-layout:post
-title:网页布局基础简明教程
-category:css
-tags:css
-description:css布局全解析,简明教程
-
+layout: post
+title: 网页布局基础简明教程
+category: css
+tags: css
+description: css布局全解析,简明教程
 ---
 
 ##第1章 课程简介
