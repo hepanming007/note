@@ -1,0 +1,28 @@
+<input type="text" name="keyword" placeholder="酒店名称关键字" id="J_auto_complete" autocomplete="off" class="ac_input">
+ 
+ $("#J_auto_complete").autocomplete("/fenxiao/hotel/ajax_get_hotel_name", {
+        width: 264,
+        selectFirst: false,
+        extraParams: {zone_id:function(){return $("input[name='city_id']").val();}},//额外参数
+        cacheLength:0//不缓存
+    });
+   //返回结果处理
+   $('#J_auto_complete').result(function(event, data, formatted) {
+        if (data){
+            $(this).parent().next().find("input").val(data[1]);    
+        }
+    });
+    
+    //服务端
+    functioin ajax_get_hotel_name(){
+        $q  = trim($this->input->get_post('q'));
+        $limit = $this->input->get_post('limit');
+        $limit = !empty($limit)?$limit:10;
+        $zone_id = $this->input->get_post('zone_id');
+      	$hotel_titles = $this->db->query(" SELECT DISTINCT `hotel_name` FROM `cgfx_hotel` WHERE `zone_id` = {$zone_id} AND `hotel_name` LIKE '%{$q}%' ORDER BY hits,order_num DESC LIMIT {$limit}  ")->result_array();
+    		foreach($hotel_titles as $hk => $hv){
+    			echo $hv['hotel_name']."\n";
+    		}
+    		exit;
+    }
+   
