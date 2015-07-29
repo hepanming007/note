@@ -1,0 +1,64 @@
+
+
+1.apachek开启rewrite模块
+2.apache开启vhost支持
+3.修改配置
+
+F:\wamp32\bin\apache\Apache2.4.4\conf\extra\http-vhosts.conf
+============================================================
+
+#
+# Use name-based virtual hosting.
+#
+NameVirtualHost 192.168.1.29:80
+
+#
+# VirtualHost example:
+# Almost any Apache directive may go into a VirtualHost container.
+# The first VirtualHost section is used for all requests that do not
+# match a ServerName or ServerAlias in any <VirtualHost> block.
+#
+
+
+<VirtualHost 192.168.1.29:80>
+    ServerAdmin 306863208@qq.com
+    DocumentRoot "f:/wamp32/www/svn/webapp"
+    ServerName   test.net
+    ErrorLog "logs/b2b-error.log"
+    CustomLog "logs/b2b-access.log" common
+</VirtualHost>
+
+<VirtualHost 192.168.1.29:80>
+    AllowOverride All
+    ServerAdmin 306863208@qq.com
+    DocumentRoot "F:/wamp32/www/yii/basic/web"
+    ServerName   yii.net
+    LogFormat "%v %l %u %t \"%r\" %>s %b" comonvhost
+    ErrorLog "logs/yii-error.log"
+    CustomLog "logs/yii-access.log" comonvhost
+</VirtualHost>
+
+<VirtualHost 192.168.1.29:80>
+    ServerAdmin 306863208@qq.com
+    DocumentRoot "F:/wamp32/www/yii/meta/web"
+    ServerName   yiidemo.net
+    ErrorLog "logs/b2b-error.log"
+    CustomLog "logs/b2b-access.log" common
+</VirtualHost>
+
+<VirtualHost 192.168.1.29:80>
+    ServerAdmin 306863208@qq.com
+    DocumentRoot "F:/wamp32/www/dz/"
+    ServerName    dz.net
+    ErrorLog "logs/dz-error.log"
+    CustomLog "logs/dz-access.log" common
+</VirtualHost>
+
+
+<VirtualHost 192.168.1.29:80>
+    ServerAdmin 306863208@qq.com
+    DocumentRoot "F:/wamp32/www/onethink/"
+    ServerName    ot.net
+    ErrorLog "logs/ot-error.log"
+    CustomLog "logs/ot-access.log" common
+</VirtualHost>
