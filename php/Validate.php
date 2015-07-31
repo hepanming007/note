@@ -3,12 +3,14 @@
  * Class Validate  验证静态类
  */
 class Validate{
+     CONST EXTEND    =    'extraValidate'; //扩展的验证
+     CONST CALLBACK  =    'callback';     //使用callback灵活验证
 
-     CONST DATE     =   'date';
+     CONST DATE      =    'date';
      CONST TIME      =   'time';
      CONST MOBILE    =   'mobile';
      CONST EMAIL     =   'email';
-     CONST POST_CODE =   'post_code';
+     CONST POST_CODE =   'ppostalCode';
      CONST IP        =   'ip';
      CONST QQ        =   'qq';
      CONST ID_CART   =   'id_card';
@@ -16,13 +18,13 @@ class Validate{
      CONST URL       =   'url';
      CONST REQUIRED  =   'required';
      CONST NUMBERNIC =   'numeric';
-     CONST INTEGER       =   'integer';
-
-
+     CONST INTEGER   =   'integer';
+     CONST INARRAY   =   'inArray';
+     CONST INRANGE   =   'inRange';
 
      public  static $errorMessage = array(
             self::DATE    =>    '日期格式错误',
-            self::TIME    =>    '日期格式错误',
+            self::TIME    =>    '时间格式错误',
             self::MOBILE  =>    '手机格式错误',
             self::EMAIL   =>    '邮箱格式错误',
             self::POST_CODE =>  '邮政编码错误',
@@ -34,9 +36,9 @@ class Validate{
             self::REQUIRED =>   '字段必填',
             self::NUMBERNIC =>  '数值类型',
             self::INTEGER   =>  '必须为整型',
+            self::INARRAY     =>'超出范围',
+            self::INRANGE     =>'超出范围',
      );
-
-
 
     /**
      *  检查日期 xxxx-xx-xx
@@ -45,14 +47,12 @@ class Validate{
         return preg_match('/^[\d]{4}\-[\d]{1,2}-[\d]{1,2}$/', $date);
     }
 
-
     /**
      *  检查完整日期 xxxx-xx-xx xx:xx:xx
      */
     public static function time($date = ''){
         return preg_match('/^[\d]{4}\-[\d]{1,2}-[\d]{1,2} [\d]{1,2}:[\d]{1,2}:[\d]{1,2}$/', $date);
     }
-
 
     /**
      *  检查手机号码
@@ -71,7 +71,7 @@ class Validate{
     /**
      *  检查邮政编码
      */
-    public static function postal_code($postal_code = ''){
+    public static function postalCode($postal_code = ''){
         return preg_match("/[1-9]{1}(\d+){5}/", $postal_code);
     }
 
@@ -174,7 +174,7 @@ class Validate{
      * @param	value
      * @return	bool
      */
-    public static function min_length($str, $val)
+    public static function minLength($str, $val)
     {
         if (preg_match("/[^0-9]/", $val))
         {
@@ -199,7 +199,7 @@ class Validate{
      * @param	value
      * @return	bool
      */
-    public static function max_length($str, $val)
+    public static function maxLength($str, $val)
     {
         if (preg_match("/[^0-9]/", $val))
         {
@@ -224,7 +224,7 @@ class Validate{
      * @param	value
      * @return	bool
      */
-    public static function exact_length($str, $val)
+    public static function exactLength($str, $val)
     {
         if (preg_match("/[^0-9]/", $val))
         {
@@ -240,7 +240,6 @@ class Validate{
     }
 
     // --------------------------------------------------------------------
-
 
     /**
      * Numeric
@@ -264,7 +263,7 @@ class Validate{
      * @param	string
      * @return	bool
      */
-    public static function is_numeric($str)
+    public static function isNumeric($str)
     {
         return ( ! is_numeric($str)) ? FALSE : TRUE;
     }
@@ -306,7 +305,7 @@ class Validate{
      * @param	string
      * @return	bool
      */
-    public static  function greater_than($str, $min)
+    public static  function greaterThan($str, $min)
     {
         if ( ! is_numeric($str))
         {
@@ -324,13 +323,22 @@ class Validate{
      * @param	string
      * @return	bool
      */
-    public static function less_than($str, $max)
+    public static function lessThan($str, $max)
     {
         if ( ! is_numeric($str))
         {
             return FALSE;
         }
         return $str < $max;
+    }
+
+    public static function inRange()
+    {
+        $args = func_get_args();
+        $num = $args[0];
+        $min = $args[1][0];
+        $max = $args[1][1];
+        return self::lessThan($num,$max)&&self::greaterThan($num,$min);
     }
 
     /**
@@ -348,57 +356,105 @@ class Validate{
         return (bool) ! preg_match('/[^a-zA-Z0-9\/\+=]/', $str);
     }
 
+    public static function inArray($search,$dataArr)
+    {
+        return in_array($search,$dataArr);
+    }
+
+
 }
 
-/*
- *
- *
- *
- 用法：
-<?php
-require './helper/Loader.php';
-class Val{
 
+//require './helper/Loader.php';
+class Val{
     public $rules = [
         'name'=>  array(Validate::DATE,Validate::REQUIRED),
         'time' => Validate::TIME,
         'sno'  => Validate::INTEGER,
+        'flag' => [
+              Validate::EXTEND =>'true',
+              Validate::INARRAY=>[1,2,3]
+        ],
+        'range'=>[
+             Validate::EXTEND=>'true',
+             Validate::INRANGE=>[1,100],
+        ],
+        'password'=>[
+            Validate::CALLBACK=>'true',
+        ]
 
     ];
 
+    public $ruleMessage = [
+        'name'=> '姓名',
+        'time'=> '时间',
+        'sno' => '学号',
+        'flag'=> '标志',
+        'range'=>'数字',
+    ];
+
     public $data = array(
-        'name'=>'',
-        'time'=>'test',
-        'sno'=>'test',
+        'name'=>'2015-07-31',
+        'time'=>'2015-07-31 10:09:30',
+        'sno'=> 10000,
+        'flag'=>100,
+        'range'=>10000
     );
 
     public $_errMessage = array();
 
-
-    public function run()
+    public function validate()
     {
         foreach($this->rules as $key=>$rule){
+
+               $extraMessage = isset($this->ruleMessage[$key])?$this->ruleMessage[$key]:'';
                if(is_array($rule)){
-                    foreach($rule as $sub_rule){
-                        if(!Validate::$sub_rule($this->data[$key])){
-                            $this->_errMessage[$key] = Validate::$errorMessage[$sub_rule];
+                    if(isset($rule[Validate::EXTEND]))
+                    {
+                        unset($rule[Validate::EXTEND]);
+                        foreach($rule as $callfunc=>$ruleData)
+                        {
+                            if(!Validate::$callfunc($this->data[$key],$ruleData))
+                            {
+                                $this->_errMessage[$key] = $extraMessage.Validate::$errorMessage[$callfunc];
+                            }
+                        }
+                    }elseif(isset($rule[Validate::CALLBACK]))
+                    {
+                       call_user_func(array(__CLASS__,'validate'.ucfirst($key) ));
+                    }else{
+                        foreach($rule as $sub_rule){
+                            if(!Validate::$sub_rule($this->data[$key])){
+                                $this->_errMessage[$key] = $extraMessage.Validate::$errorMessage[$sub_rule];
+                            }
                         }
                     }
                }else{
                    if(!Validate::$rule($this->data[$key])){
-                       $this->_errMessage[$key] = Validate::$errorMessage[$rule];
+                       $this->_errMessage[$key] = $extraMessage.Validate::$errorMessage[$rule];
                    }
                }
+        }
+        if(empty($this->_errMessage))
+        {
+            return true;
+        }else{
+            return false;
+        }
+    }
 
+    public function validatePassword()
+    {
+        if(1)
+        {
+            $this->_errMessage['password'] = '密码不相等';
         }
     }
 }
 
 $val = new Val();
-$val->run();
-echo "<pre>";
-ArrayHelper::p($val->_errMessage);
- *
- *
- *
- */
+if(!$val->validate())
+{
+    echo "<pre>";
+    print_r($val->_errMessage);
+}
