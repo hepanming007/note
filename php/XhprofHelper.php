@@ -1,6 +1,13 @@
 <?php
 class XhprofHelper{
 
+   
+    public static function go()
+    {
+        self::start();
+        register_shutdown_function('Xhprof_Helper::end');
+    }
+    
     public static function  start()
     {
        // ob_start();
@@ -35,6 +42,7 @@ class XhprofHelper{
 /*******
 define('XHPROF_DIR',dirname(dirname((__FILE__))).DIRECTORY_SEPARATOR.'xhprof');
 require XHPROF_DIR.'xhprof.php';
-xhprof::start();
-xhprof::end();
+XhprofHelper::start();
+XhprofHelper::end();
+XhporfHelper::go();
  *******/
