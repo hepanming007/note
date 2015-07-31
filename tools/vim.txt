@@ -1,0 +1,13 @@
+
+
+
+
+
+ctrl+]  跳转到函数定义
+ctrl+t  返回
+ctrl+c  代码折叠
+ctrl+o  取消折叠
+ctrl+M  全部折叠
+ctrl+R  取消折叠
+
+
