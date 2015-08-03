@@ -98,15 +98,23 @@ class TimerHelper
         list($usec, $sec) = explode(" ", microtime());
         return ((float)$usec + (float)$sec);
     }
+
+    /**
+     * 直接检测调用go的开始行到文件结尾的时间和内存消耗
+     * @param $id
+     */
+    public static function go($id)
+    {
+        self::start($id);
+        register_shutdown_function("TimerHelper::stop",$id);
+    }
 }
 /*
-TimerHelper::start('test');
+TimerHelper::go('test');
 for ($i = 0; $i < 10000000; $i++) {
     echo ".";
     if ($i % 100 == 0) {
-        echo "<br/>";
+        echo PHP_EOL."<br/>";
     }
 }
-echo TimerHelper::stop('test');
-
 */
