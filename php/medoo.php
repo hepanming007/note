@@ -7,6 +7,7 @@
  * Copyright 2015, Angel Lai
  * Released under the MIT license
  */
+
 class medoo
 {
 	// General
@@ -38,8 +39,11 @@ class medoo
 	protected $logs = array();
 
 	protected $debug_mode = false;
+       
+       /*存储对象的实例*/
+        private static $_instances = array();
 
-	public function __construct($options = null)
+	private  function __construct($options = null)
 	{
 		try {
 			$commands = array();
@@ -947,5 +951,40 @@ class medoo
 
 		return $output;
 	}
+
+    public static function getInstance($name,$db='master')
+    {
+        if(!in_array($db,['master','slave'])){$db='master';}
+        $config['master'] = [
+            'database_type' => 'mysql',
+            'database_name' => 'hotel',
+            'server' => 'localhost',
+            'username' => 'root',
+            'password' => '',
+            'charset' => 'gbk'
+        ];
+        $config['slave'] = [
+            'database_type' => 'mysql',
+            'database_name' => 'hotel',
+            'server' => 'localhost',
+            'username' => 'root',
+            'password' => '',
+            'charset' => 'gbk'
+        ];
+
+        if(!array_key_exists($name,self::$_instances)){
+            if(is_array($db))
+            {
+                self::$_instances[$name] = new self($db);
+            }else{
+                self::$_instances[$name] = new self($config[$db]);
+            }
+        }
+        return self::$_instances[$name];
+    }
+
+    private function __clone(){}
+    private function __wakeup(){}
+
 }
 ?>
