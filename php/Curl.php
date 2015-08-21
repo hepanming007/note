@@ -5,7 +5,7 @@
 class Curl
 {
     
-    public static responseHeaders = array();
+    public static $responseHeaders = array();
     /**
      * @brief                  get请求
      * @param $url             请求的url
