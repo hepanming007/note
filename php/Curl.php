@@ -4,7 +4,8 @@
  */
 class Curl
 {
-
+    
+    public static responseHeaders = array();
     /**
      * @brief                  get请求
      * @param $url             请求的url
@@ -40,7 +41,8 @@ class Curl
         if ($format == 'json') {
             $data = json_decode($data, true);
         }
-
+        
+        self::$responseHeaders = curl_getinfo($ch);
         if($log){
             if($format=='html'){
                 self::_logCurlInfo($ch,$param,'');
@@ -84,6 +86,7 @@ class Curl
         }
 
         $data = curl_exec($ch);
+        self::$responseHeaders = curl_getinfo($ch);
         if ($format == 'json') {
             $data = json_decode($data, true);
         }
