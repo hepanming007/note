@@ -97,6 +97,33 @@ class StringHelper
         }
         return mb_strimwidth($string, $start, $width, $trimmarker, $encoding);
     }
+    
+    
+     /**
+     * @param $data
+     * @param string $from
+     * @param string $to
+     * @return string
+     */
+    public static function convert_encoding($data, $from = 'UTF-8', $to = 'GBK') {
+        $return = '';
+        if (is_array($data)) {
+            foreach ($data as $k => $v) {
+                $k = mb_convert_encoding($k, $to, $from);
+                if (is_array($v)) {
+                    $v = self::convert_encoding($v, $from, $to);
+                } else {
+                    $v = mb_convert_encoding($v, $to, $from);
+                }
+                $return[$k] = $v;
+            }
+        } else {
+            $return = mb_convert_encoding($data, $to, $from);
+        }
+
+        return $return;
+    }
+
 }
 
 /*
