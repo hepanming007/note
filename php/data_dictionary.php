@@ -6,12 +6,12 @@
 $dbserver   = "127.0.0.1";
 $dbusername = "root";
 $dbpassword = "";
-$database      = "ultrax3";
+$database      = "cgfx";
 //其他配置
 $title = '数据字典';
 $mysql_conn = @mysql_connect("$dbserver", "$dbusername", "$dbpassword") or die("Mysql connect is error.");
 mysql_select_db($database, $mysql_conn);
-mysql_query('SET NAMES utf8', $mysql_conn);
+mysql_query('SET NAMES gbk', $mysql_conn);
 $table_result = mysql_query('show tables', $mysql_conn);
 //取得所有的表名
 while ($row = mysql_fetch_array($table_result)) {
@@ -43,7 +43,7 @@ $html = '';
 //循环所有表
 foreach ($tables AS $k=>$v) {
     //$html .= '<p><h2>'. $v['TABLE_COMMENT'] . '&nbsp;</h2>';
-    $html .= '<table  border="1" cellspacing="0" cellpadding="0" align="center">';
+    $html .= '<table  border="1" cellspacing="0" cellpadding="0" align="center" width="750px">';
     $html .= '<caption>' . $v['TABLE_NAME'] .'  '. $v['TABLE_COMMENT']. '</caption>';
     $html .= '<tbody><tr><th><span>字段名</span></th><th><span>数据类型</span></th><th><span>默认值</span></th>
     <th><span>允许非空</span></th>
@@ -83,9 +83,9 @@ table td{height:20px; font-size:12px; border:1px solid #CCC;background-color:#ff
 table caption{text-align:left; background-color:#fff; line-height:2em; font-size:16px; font-weight:bold; }
 table { border-collapse: collapse; mso-table-layout-alt: fixed;border: 1px solid rgb(204, 204, 204);background: rgb(239, 239, 239);margin-bottom: 30px;}       
 table th { text-align: left;  font-weight: bold; height: 26px;line-height: 26px;font-size: 12px;border: 1px solid rgb(204, 204, 204);
- background: rgb(79, 129, 189);border-right: 1pt solid rgb(79, 129, 189);border-top: 1pt solid rgb(79, 129, 189);border-bottom: 1pt solid rgb(79, 129, 189); border-left: 1pt solid rgb(79, 129, 189);}
+ background:#005fbf;border-right: 1pt solid rgb(79, 129, 189);border-top: 1pt solid rgb(79, 129, 189);border-bottom: 1pt solid rgb(79, 129, 189); border-left: 1pt solid rgb(79, 129, 189);}
 table th span { color: rgb(255, 255, 255);}
-.td1 {height: 20px;font-size: 12px;border: 1px solid rgb(204, 204, 204);background-color: rgb(184, 204, 228);border-right: 1pt solid rgb(79, 129, 189);border-top: none;border-bottom: 1pt solid rgb(79, 129, 189);
+.td1 {height: 20px;font-size: 12px;border: 1px solid rgb(204, 204, 204);background-color: #aad4ff;border-right: 1pt solid rgb(79, 129, 189);border-top: none;border-bottom: 1pt solid rgb(79, 129, 189);
 }
 .c1 {width: 120px;border-left: 1pt solid rgb(79, 129, 189);
 }
@@ -95,6 +95,8 @@ table th span { color: rgb(255, 255, 255);}
 .c5 {width: 80px;}
 .c6 {width: 270px;}
 .td2 {height: 20px;font-size: 12px;border: 1px solid rgb(204, 204, 204);background-color: rgb(255, 255, 255);border-right: 1pt solid rgb(79, 129, 189);border-top: none;border-bottom: 1pt solid rgb(79, 129, 189);}
+tr:hover {background-color: #ffffaa;}
+tr:hover td {background:none;}
 </style>
 </head>
 <body>';
