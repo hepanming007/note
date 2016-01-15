@@ -15,113 +15,120 @@ class Curl
     CONST CURL_LOG_PATH = './curl.log';
 
     /**
-     *  响应的头部信息
+     *  curl日志信息
      * @var array
      */
-    public static $responseHeaders = array();
+    public static $last_log = array();
+
 
     /**
-     * @brief                  get请求
-     * @param $url             请求的url
-     * @param array $param     请求的参数
-     * @param array $header    头部数据
-     * @param int $timeout     超时时间
-     * @param int $followAction 是否允许被抓取的链接跳转
-     * @param int $gzip         是否启用gzip压缩
-     * @param string $format    格式
-     * @param int $log       是否启用日志
+     * get
+     * @param $url          请求url
+     * @param array $param  请求参数
+     * @param array $header 头部信息
+     * @param bool $login   是否登陆
+     * @param int $log      日志
+     * @param string $format返回格式
      * @return mixed
      */
-    public static function get($url, $param = array(), $login=false,$format = 'html',$header = array(), $timeout = 3, $followAction = 0, $gzip = 0,$log=0)
+    public static function get($url, array $param = array(), array $header = array(), $login = false, $log = 1, $format = 'html')
     {
+        self::$last_log['request'] = $param;
         $ch = curl_init();
         if (is_array($param)) {
             $url = $url . '?' . http_build_query($param);
         }
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-        curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)");
-        if($login)
-        {
-            curl_setopt($ch,CURLOPT_COOKIEFILE,self::COOKIE_FILE);
+        $header_options = array(
+        //  'Accept-Encoding: gzip, deflate',// 是否启用gzip压缩
+            "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+        );
+        $header_options = $header_options + $header;
+        $curl_options = array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER=>1,//返回原生的（Raw）输出
+           // CURLOPT_HEADER => 1,
+            CURLOPT_TIMEOUT => 10, //超时时间
+            CURLOPT_FOLLOWLOCATION => 1, //是否允许被抓取的链接跳转
+            CURLOPT_HTTPHEADER => $header_options, //头部信息
+        );
+
+        if ($login) {
+            $curl_options[CURLOPT_COOKIEFILE] = self::COOKIE_FILE;
             //curl_setopt($ch,CURLOPT_COOKIE,session_name().'='.session_id());
         }
-        if ($followAction) {
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1); //允许被抓取的链接跳转
-        }
-        if ($gzip) {
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept-Encoding: gzip, deflate'));
-            curl_setopt($ch, CURLOPT_ENCODING, 'gzip,deflate');
-        }
-
-        //curl_setopt($ch, CURLOPT_REFERER, '');
+        curl_setopt_array($ch, $curl_options);
         $data = curl_exec($ch);
+
+        self::$last_log['response'] = $data;
+        self::$last_log['info']     = curl_getinfo($ch);
+        if ($log) {
+            self::_logCurlInfo();
+        }
         if ($format == 'json') {
             $data = json_decode($data, true);
-        }
-
-        self::$responseHeaders = curl_getinfo($ch);
-        if($log){
-            if($format=='html'){
-                self::_logCurlInfo($ch,$param,'');
-            }else{
-                self::_logCurlInfo($ch,$param,$data);
-            }
         }
         curl_close($ch);
         return $data;
     }
+
     /**
-     * @brief                   post请求
-     * @param $url              请求的url地址
-     * @param array $param      请求的参数
-     * @param array $header     http头
-     * @param int $ssl          是否启用ssl
-     * @param string $format    返回的格式
-     * @param int $log          是否启用日志
+     * post 请求
+     * @param $url 请求url
+     * @param array $param  post参数
+     * @param array $header 头部信息
+     * @param bool $login   是否登陆
+     * @param int $ssl      启用ssl
+     * @param int $log      是否记录日志
+     * @param string $format返回数据格式
      * @return mixed
      */
-    public static function post($url, $param = array(),$login=false,$format = 'json',$header = array(), $ssl = 0,$log=0)
+    public static function post($url, array $param = array(), array $header = array(), $login = false, $ssl = 0, $log = 1,$format = 'json')
     {
         $ch = curl_init();
+        $post_param = array();
         if (is_array($param)) {
-            $urlparam = http_build_query($param);
+            $post_param = http_build_query($param);
         } else if (is_string($param)) { //json字符串
-            $urlparam = $param;
+            $post_param = $param;
         }
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 120); //设置超时时间
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //返回原生的（Raw）输出
-        curl_setopt($ch, CURLOPT_POST, 1); //POST
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $urlparam); //post数据
+        self::$last_log['request'] = $post_param;
 
-        if($login)
-        {
-            curl_setopt($ch,CURLOPT_COOKIEFILE,self::COOKIE_FILE);
-            curl_setopt($ch,CURLOPT_COOKIE,session_name().'='.session_id());
+        $header_options = array(
+            //'Accept-Encoding: gzip, deflate',// 是否启用gzip压缩
+            'User-Agent:Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.81 Safari/537.36',
+
+        );
+        $header_options = $header_options + $header;
+        $curl_options = array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => 1, //返回原生的（Raw）输出
+            CURLOPT_HEADER => 0,
+            CURLOPT_TIMEOUT => 120, //超时时间
+            CURLOPT_FOLLOWLOCATION => 1, //是否允许被抓取的链接跳转
+            CURLOPT_HTTPHEADER => $header_options,
+            CURLOPT_POST => 1, //POST
+            CURLOPT_POSTFIELDS => $post_param, //post数据
+        );
+
+        if ($login) {
+            $curl_options[CURLOPT_COOKIEFILE] = self::COOKIE_FILE;
+            $curl_options[CURLOPT_COOKIE] = session_name() . '=' . session_id();
         }
 
-        if ($header) {
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
-        }
         if ($ssl) {
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // 对认证证书来源的检查
-            curl_setopt($ch, CURLOPT_BINARYTRANSFER, true); //将curl_exec()获取的信息以文件流的形式返回，而不是直接输出。
+            $curl_options[CURLOPT_SSL_VERIFYPEER] = false; // 对认证证书来源的检查
         }
+        curl_setopt_array($ch, $curl_options);
         $data = curl_exec($ch);
-        self::$responseHeaders = curl_getinfo($ch);
+        self::$last_log['response'] = $data;
+        self::$last_log['info']     = curl_getinfo($ch);
+        if ($log) {
+            self::_logCurlInfo();
+        }
         if ($format == 'json') {
             $data = json_decode($data, true);
         }
-        if($log){
-            if($format=='html'){
-                self::_logCurlInfo($ch,$param,'');
-            }else{
-                self::_logCurlInfo($ch,$param,$data);
-            }
-        }
+
         curl_close($ch);
         return $data;
     }
@@ -133,28 +140,44 @@ class Curl
      * @param $param 参数 用户名密码等
      * @return mixed
      */
-    public static function login($url,$param,$ssl=false)
+    public static function login($url, $param, array $header = array(), $ssl = false)
     {
         $ch = curl_init();
+        $post_param = '';
         if (is_array($param)) {
-            $postParam = http_build_query($param);
+            $post_param = http_build_query($param);
         } else if (is_string($param)) { //json字符串
-            $postParam = $param;
+            $post_param = $param;
         }
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);           // 将curl_exec()获取的信息以文件流的形式返回，而不是直接输出。
-        curl_setopt($ch,CURLOPT_COOKIESESSION,1);             //启用时curl会仅仅传递一个session cookie，忽略其他的cookie，
-        curl_setopt($ch,CURLOPT_COOKIEJAR,self::COOKIE_FILE);//连接结束后保存cookie信息的文件。
-        curl_setopt($ch, CURLOPT_HEADER, 0);                 //启用时会将头文件的信息作为数据流输出。
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);	     //页面跳转
-        curl_setopt($ch, CURLOPT_POST, 1);                   //启用时会发送一个常规的POST请求
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $postParam);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array("application/x-www-form-urlencoded;charset=utf-8","Content-length: ".strlen($param)));
+        self::$last_log['request'] = $post_param;
+        $header_options = array(
+            //   'Accept-Encoding: gzip, deflate',// 是否启用gzip压缩
+            'User-Agent:Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.81 Safari/537.36',
+
+        );
+        $header_options = $header_options + $header;
+        $curl_options = array(
+            CURLOPT_URL => $url,
+            //CURLOPT_HEADER => 1, //启用时会将头文件的信息作为数据流输出。
+            CURLOPT_RETURNTRANSFER => 1, //返回原生的（Raw）输出
+            CURLOPT_COOKIESESSION => 1, //启用时curl会仅仅传递一个session cookie，忽略其他的cookie，
+            CURLOPT_COOKIEJAR => self::COOKIE_FILE, //连接结束后保存cookie信息的文件。
+            CURLOPT_TIMEOUT => 120, //超时时间
+            CURLOPT_FOLLOWLOCATION => 1, //是否允许被抓取的链接跳转
+            CURLOPT_HTTPHEADER => $header_options,
+            CURLOPT_POST => 1, //POST
+            CURLOPT_POSTFIELDS => $post_param, //post数据
+            CURLOPT_HTTPHEADER, array("application/x-www-form-urlencoded;charset=utf-8", "Content-length: " . strlen($param)),
+        );
+
         if ($ssl) {
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // 对认证证书来源的检查
+            $curl_options[CURLOPT_SSL_VERIFYPEER] = false; // 对认证证书来源的检查
         }
-        $data =  curl_exec($ch);
-        self::$responseHeaders = curl_getinfo($ch);
+        curl_setopt_array($ch,$curl_options);
+        $data = curl_exec($ch);
+        self::$last_log['response'] = $data;
+        self::$last_log['info']     = curl_getinfo($ch);
+        curl_close($ch);
         return $data;
     }
 
@@ -258,12 +281,9 @@ class Curl
      * @param $request  请求参数
      * @param $response 响应结果
      */
-    private static function _logCurlInfo($ch,$request,$response)
+    private static function _logCurlInfo()
     {
-        $info = curl_getinfo($ch);
-        $resultFormat =  "耗时:[%s] 返回状态:[%s] 请求的url[%s] 请求参数:[%s] 响应结果:[%s] 大小:[%s]kb 速度:[%s]kb/s";
-        $resultLogMsg =  sprintf($resultFormat,$info['total_time'],$info['http_code'],$info['url'],var_export($request,true),var_export($response,true),$info['size_download']/1024,$info['speed_download']/1024);
-        error_log($resultLogMsg.PHP_EOL,3,self::CURL_LOG_PATH);
+        error_log(var_export(self::$last_log,true) .PHP_EOL, 3, self::CURL_LOG_PATH);
     }
 
     /**
@@ -272,32 +292,41 @@ class Curl
      * @param $localFile  本地文件地址
      * @param bool $login 是否需要登陆
      */
-    public static function download($remoteUrl,$localFile,$login=false)
+    public static function download($remoteUrl, $localFile, $login = false)
     {
         $ch = curl_init($remoteUrl);
-        $fp = fopen($localFile,'w');
-        curl_setopt($ch,CURLOPT_FILE,$fp);//这个文件将是你放置传送的输出文件，默认是STDOUT.
-        curl_setopt($ch,CURLOPT_HEADER,0);//启用时会将头文件的信息作为数据流输出
-        if($login)
-        {
-            curl_setopt($ch,CURLOPT_COOKIE,self::COOKIE_FILE);
+        $fp = fopen($localFile, 'w');
+        curl_setopt($ch, CURLOPT_FILE, $fp); //这个文件将是你放置传送的输出文件，默认是STDOUT.
+        curl_setopt($ch, CURLOPT_HEADER, 0); //启用时会将头文件的信息作为数据流输出
+        if ($login) {
+            curl_setopt($ch, CURLOPT_COOKIE, self::COOKIE_FILE);
         }
         curl_exec($ch);
-        self::$responseHeaders = curl_getinfo($ch);
+        self::$last_log = array(
+            'request'=>'',
+            'response'=>'',
+            'info'=>curl_getinfo($ch),
+        );
         curl_close($ch);
         fclose($fp);
     }
+
+    public static function print_last_log()
+    {
+        echo "<pre>";
+        print_r(self::$last_log);
+    }
 }
 
+ 
 
 /* example:
     echo Curl::get('http://www.baidu.com');
     Curl::login('http://www.imooc.com/user/login','username=yangyun4814@gmail.com&password=yang995224814&remember=1');
-    echo Curl::get('http://www.imooc.com/space/index','',true);
-
+    echo Curl::get('http://www.baidu.com');
+    Curl::print_last_log();
+    echo Curl::get('http://www.imooc.com/space/index',array(),array(),'',true);
     Curl::downLoad('http://192.168.1.7:701/hotel/32586','1.html');
-    echo "<pre>";
-    print_r(Curl::$responseHeaders);
-    $arr = Curl::post('127.0.0.1/test/test.php',['a'=>1,'b'=>2],'',0);
-    var_dump($arr);
+    Curl::print_last_log();
+
 */
