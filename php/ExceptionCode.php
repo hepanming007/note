@@ -80,3 +80,8 @@ class FlightException extends BaseException{
 
     }
 }
+/**
+ *   用法
+ *   $this->load->library('ExceptionCode');
+ *   set_exception_handler(array('ExceptionHandle', 'deal'));
+ * /
