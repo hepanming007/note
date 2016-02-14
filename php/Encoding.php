@@ -1,3 +1,4 @@
+<?php 
 class Encoding {
     /**
      * 字符串GBK转码为UTF-8，数字转换为数字。
