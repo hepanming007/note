@@ -36,12 +36,18 @@ class medoo
 	protected $option = array();
 
 	// Variable
-	protected $logs = array();
+	protected $logs = array(
+        'query'=>array(),
+        'time_cost'=>array(),
+    );
+    
+    // Variable
+	protected $time_logs = array();
 
 	protected $debug_mode = false;
        
-       /*存储对象的实例*/
-        private static $_instances = array();
+    /*存储对象的实例*/
+    private static $_instances = array();
 
 	private  function __construct($options = null)
 	{
@@ -165,9 +171,13 @@ class medoo
 			return false;
 		}
 
-		array_push($this->logs, $query);
-
-		return $this->pdo->query($query);
+	    array_push($this->logs['query'], $query);
+        $query_begin = $this->microtime();
+        $result = $this->pdo->query($query);
+        $query_end   =  $this->microtime();
+        $total_time  = $query_end - $query_begin;
+        array_push($this->logs['time_cost'], $total_time);
+		return $result;
 	}
 
 	public function exec($query)
@@ -181,7 +191,7 @@ class medoo
 			return false;
 		}
 
-		array_push($this->logs, $query);
+	    array_push($this->logs['query'], $query);
 
 		return $this->pdo->exec($query);
 	}
@@ -928,7 +938,7 @@ class medoo
 	{
 		return end($this->logs);
 	}
-
+    
 	public function log()
 	{
 		return $this->logs;
@@ -957,7 +967,7 @@ class medoo
         if(!in_array($db,['master','slave'])){$db='master';}
         $config['master'] = [
             'database_type' => 'mysql',
-            'database_name' => 'hotel',
+            'database_name' => 'cgfx',
             'server' => 'localhost',
             'username' => 'root',
             'password' => '',
@@ -971,7 +981,13 @@ class medoo
             'password' => '',
             'charset' => 'gbk'
         ];
-
+        if(is_array($db))
+        {
+            $instance = new self($db);
+        }else{
+            $instance = new self($config[$db]);
+        }
+        /*
         if(!array_key_exists($name,self::$_instances)){
             if(is_array($db))
             {
@@ -979,12 +995,44 @@ class medoo
             }else{
                 self::$_instances[$name] = new self($config[$db]);
             }
-        }
-        return self::$_instances[$name];
+        }*/
+        return $instance;
+    }
+    
+     /**
+     * get microtime float
+     */
+    public function microtime()
+    {
+        list($usec, $sec) = explode(" ", microtime());
+        return ((float)$usec + (float)$sec);
     }
 
     private function __clone(){}
     private function __wakeup(){}
 
 }
+
+$db = medoo::getInstance('hotel');
+$db->query('select * from cgfx_hotel_sys  s left join cgfx_hotel  h on s.id=s.hotel_id LIMIT 10');
+$db->query('select * from cgfx_hotel_sys limit 10');
+$db->query('select * from cgfx_hotel_sys limit 10');
+$db->query('select * from cgfx_hotel_sys limit 10');
+$db->query('select * from cgfx_hotel_sys limit 10');
+$db->query('select * from cgfx_hotel_sys limit 10');
+$db->query('select * from cgfx_hotel_sys limit 10');
+$db->query('select * from cgfx_hotel_sys limit 10');
+$db->query('select * from cgfx_hotel_sys limit 10');
+$db->query('select * from cgfx_hotel_sys limit 10');
+$db->query('select * from cgfx_hotel_sys limit 10');
+$db->query('select * from cgfx_hotel_sys limit 10');
+$db->query('select * from cgfx_hotel_sys limit 10');
+echo "<pre>";
+print_r($db->log());
+ 
+$db = medoo::getInstance('hotel');
+$db->query('select * from cgfx_hotel_sys limit 10');
+$db->query('select * from cgfx_hotel_sys limit 10');
+echo "<pre>";
+print_r($db->log());
 ?>
