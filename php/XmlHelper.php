@@ -86,5 +86,15 @@ class XmlHelper
 }
 
 
+/**
+ * 
+ *  
+ *  
+ *  $xml  = simplexml_load_string($out);
+    $json = json_encode($xml);
+    $data = json_decode($json, true);
+            
+ * 
+*/
 XmlHelper::setXmlDataFromUrl('./20101103.xml');
 print_r(XmlHelper::$data);
