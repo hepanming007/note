@@ -3,6 +3,7 @@
 1.apachek开启rewrite模块
 2.apache开启vhost支持
 3.修改配置
+4.配置对应的虚拟主机
 
 F:\wamp32\bin\apache\Apache2.4.4\conf\extra\http-vhosts.conf
 ============================================================
