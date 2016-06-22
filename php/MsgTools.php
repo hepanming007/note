@@ -1,7 +1,5 @@
 <?php
 
-namespace Jp;
-use Cncn\Encoding;
 
 class MsgTools{
 
@@ -63,6 +61,24 @@ class MsgTools{
         }else{
             self::show_msg($msg,$url);
         }
-
     }
+
+    /**
+     * 404跳转
+     */
+    public static function page_404(){
+        header ( "HTTP/1.0 404 Not Found" );
+        header ( "Status: 404 Not Found" );
+        exit();
+    }
+    /***
+     * 301跳转
+     * @param $url
+     */
+    public static function page_301($url){
+        header('HTTP/1.1 301 Moved Permanently');
+        header('Location',$url);
+        exit();
+    }
+
 }
