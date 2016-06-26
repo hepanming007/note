@@ -1,0 +1,17 @@
+#基于基础版安装后
+
+#pureftp.sql需要手动操作
+
+#安装mysql-devel
+yum install mysql-devel
+
+#编译
+./configure --prefix=/usr/local/pureftpd --with-mysql /usr/local/pureftpd/etc/pureftpd-mysql.conf --without-inetd  --with-altlog --with-puredb --with-throttling --with-largefile --with-peruserlimits --with-tls --with-language=simplified-chinese
+
+#拷贝pureftpd-mysql.conf
+cp /data/download/pure-ftpd-1.0.35/pureftpd-mysql.conf /usr/local/pureftpd/etc/
+
+#修改vi /usr/local/pureftpd/etc/pure-ftpd.conf，增加
+MySQLConfigFile /usr/local/pureftpd/etc/pureftpd-mysql.conf
+
+#权限和其他细节仍需调试

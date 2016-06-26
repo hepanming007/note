@@ -1,0 +1,39 @@
+#参考地址:http://blog.csdn.net/wendi_0506/article/details/39478369
+#依赖包安装
+yum -y install bison gcc gcc-c++  autoconf automake zlib* libxml* ncurses-devel libtool-ltdl-devel* make cmake
+
+#建立用户
+useradd -d /dev/null -s /sbin/nologin mysql -u2002
+
+#建立数据存放目录，mysql程序则安装在 /usr/local/mysql 目录中
+mkdir /data/mysql
+chown -R mysql:mysql /data/mysql
+
+#编译安装MYSQL
+cd /data/download/mysql-5.6.14
+cmake . -DCMAKE_INSTALL_PREFIX=/usr/local/mysql -DMYSQL_DATADIR=/data/mysql -DSYSCONFDIR=/etc/
+make && make install
+
+#编辑/etc/my.cnf
+cat $cur_dir/my.cnf > /etc/my.cnf
+
+#建立数据库，64位系统必须指定目录
+/usr/local/mysql/scripts/mysql_install_db --user=mysql --basedir=/usr/local/mysql --datadir=/data/mysql
+
+#配置服务脚本
+cat $cur_dir/mysqld > /etc/rc.d/init.d/mysqld
+chmod 755 /etc/rc.d/init.d/mysqld
+chkconfig --add mysqld
+chkconfig --level 3 mysqld on
+
+#启动服务，后续还需设置密码和安全优化，待处理
+service mysqld restart
+
+
+
+
+
+     13 140.207.54.78
+     66 140.206.160.101
+     73 140.207.135.108
+

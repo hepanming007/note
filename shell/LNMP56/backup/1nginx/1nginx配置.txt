@@ -1,0 +1,68 @@
+#参考文档:http://my.oschina.net/liucao/blog/470241
+#安装前的准备工作
+yum -y install gcc gcc-c++ autoconf automake
+yum -y install zlib zlib-devel openssl openssl-devel pcre-devel
+
+#新建一个系统级用户组和匿名用户，以及下面编译时使用
+useradd -d /dev/null -s /sbin/nologin webuser -u2001
+useradd -d /dev/null -s /sbin/nologin mysql -u2002
+
+#读取config变量
+eval `cat ../config.ini`
+
+#进入安装目录
+cd ../soft
+
+#解压安装包
+tar xzvf nginx-1.9.7.tar.gz 
+
+#进入nginx源文件目录
+cd nginx-1.9.7
+
+#版本信息伪装
+sed -i 's/1.9.7/7.5.7600 16385/g;s/"nginx\/" NGINX_VERSION/"Microsoft-IIS\/" NGINX_VERSION/g;s/"NGINX"/"Microsoft-IIS"/g' ./src/core/nginx.h
+
+#建立var目录，存放nginx.pid
+mkdir /usr/local/nginx/var -p
+
+#编译安装
+./configure --prefix=/usr/local/nginx --with-http_stub_status_module 
+make && make install
+
+#站点vhosts目录
+mkdir /usr/local/nginx/conf/vhosts -p
+
+#建立好文件存放目录,测试目录为test
+mkdir -p /data/www/test/
+mkdir -p /data/logs/test/
+
+#备份并修改nginx.conf
+mv /usr/local/nginx/conf/nginx.conf /usr/local/nginx/conf/nginx.conf.bak
+cat nginx.conf > /usr/local/nginx/conf/nginx.conf
+
+#配置测试子站信息
+cat webserver.conf > /usr/local/nginx/conf/vhosts/www.test.com.conf
+
+#定时切割日志
+cat logcron.sh > /usr/local/nginx/sbin/logcron.sh
+#待整合
+
+
+
+
+cat $cur_dir/logcron.sh > /usr/local/nginx/sbin/logcron.sh
+
+#为 logcron.sh 脚本设置可执行属性
+chmod +x /usr/local/nginx/sbin/logcron.sh
+
+#设置服务脚本,创建NGINX开机启动脚本
+
+cat $cur_dir/nginx > /etc/init.d/nginx
+
+#为 nginx.sh 脚本设置可执行属性
+chmod +x /etc/init.d/nginx
+
+#添加 Nginx 为系统服务（开机自动启动）
+chkconfig --add nginx
+chkconfig nginx on
+

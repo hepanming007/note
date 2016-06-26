@@ -1,0 +1,28 @@
+nginx:
+log_format
+logcron.sh
+webserver.conf支持pathinfo，root外移
+
+Mysql:
+http://my.oschina.net/eduosi/blog/270535
+my.cnf的优化
+严格模式的脚本化
+
+
+php:
+--with-ncurses, --with-xmlrpc, --enable-sqlite-utf8, --disable-safe-mode
+
+--with-xmlrpc
+
+
+
+dd if=/dev/zero of=test bs=1024 count=2048000 
+
+
+awk '{print $11}' access.log |sed 's/^.*com\(.*\)\"/\1/g'|sort |uniq -c|sort -rn|head
+
+
+
+
+
+

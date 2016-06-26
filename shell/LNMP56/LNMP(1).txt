@@ -1,0 +1,138 @@
+#!/bin/bash
+#基于64位最小化版Centos 6.2安装
+#必须先配置好网络
+#拷贝当前目录的所有文件到服务器上
+#直接在当前目录运行
+#由于中文会产生乱码，该脚本尽量另外复制到服务器
+
+#获取当前路径
+LNMP_dir=$(pwd)
+
+#建立download目录
+#拷贝压缩包到download目录
+if [ -d "/data/download" ];then 
+cd /data/download
+else
+mkdir -p /data/download
+/bin/cp -a soft/* /data/download
+fi
+
+#给各个脚本赋执行权限
+chmod +x $LNMP_dir/0yum163/yum163.sh
+chmod +x $LNMP_dir/1nginxsh/nginxsetup.sh
+chmod +x $LNMP_dir/2mysqlsh/mysqlsetup.sh
+chmod +x $LNMP_dir/3php5.3sh/php53setup.sh
+chmod +x $LNMP_dir/4pureftpdsh/pureftpdsetup.sh
+chmod +x $LNMP_dir/5ssh/xmnnuseradd.sh
+chmod +x $LNMP_dir/6advancesh/advance.sh
+chmod +x $LNMP_dir/7config/config.sh
+
+
+#输出提示框
+echo "###########################################"
+echo "0、更新YUM源为163.com"
+echo "1、自动安装LNMP环境、安全和优化"
+echo "2、仅安装Nginx"
+echo "3、仅安装Mysql"
+echo "4、仅安装PHP"
+echo "5、仅安装Pureftpd"
+echo "6、添加ssh公钥和用户"
+echo "7、安全优化设置"
+echo "8、配置站点的目录和域名"
+echo "9、需手动步骤的说明"
+echo "###########################################"
+echo " "
+echo "请输入要选择项目的数字(1,2,3,4,5,6,7,8,9):"
+read num
+echo "您所选的项目是$num"
+
+#条件分支
+case $num in
+	0)
+	cd $LNMP_dir/0yum163
+	./yum163.sh
+	echo "更新YUM源为163.com完成"
+	;;
+
+
+	1)
+	cd $LNMP_dir/0yum163
+	./yum163.sh
+	cd $LNMP_dir/1nginxsh
+	./nginxsetup.sh
+	cd $LNMP_dir/2mysqlsh
+	./mysqlsetup.sh
+	cd $LNMP_dir/3php5.3sh
+	./php53setup.sh
+	echo "LNMP环境安装完成"
+	;;
+	
+	2)
+	cd $LNMP_dir/1nginxsh
+	./nginxsetup.sh
+	echo "Nginx安装完成"
+	;;
+
+	3)
+	cd $LNMP_dir/2mysqlsh
+	./mysqlsetup.sh
+	echo "Mysql安装完成"
+	;;
+
+	4)
+	cd $LNMP_dir/3php5.3sh
+	./php53setup.sh
+	echo "PHP安装完成"
+	;;
+
+	5)
+	cd $LNMP_dir/4pureftpdsh
+	./pureftpdsetup.sh
+	echo "Pureftpd安装完成"
+	;;
+
+	6)
+	cd $LNMP_dir/5ssh
+	./xmnnuseradd.sh
+	echo "添加ssh公钥和用户完成"
+	;;
+
+	7)
+	cd $LNMP_dir/6advancesh
+	./advance.sh
+	echo "安全优化设置完成"
+	;;
+
+	8)
+	cd $LNMP_dir/7config
+	./config.sh
+	echo "站点信息配置完成"
+	;;
+
+	9)
+	echo "###########################################################################"
+	echo "脚本配置完后，仍需根据实际情况手动配置站点信息，具体如下："
+	echo "1、ftp账号和密码，添加用户、密码，详见命令范例"
+	echo "   cd /usr/local/pureftpd/bin/"
+	echo "   ./pure-pw useradd testuser -u user -d /data/www/test/"
+	echo "   ./pure-pw mkdb"
+	echo "2、手动清理MYSQL空密码空用户名的账户，删除ROOT用户，根据需要建立数据库"
+	echo "   /usr/local/mysql/bin/mysql -u root -p"
+	echo "   GRANT ALL PRIVILEGES ON *.* TO root@"localhost" IDENTIFIED BY '123456' WITH GRANT OPTION;"
+	echo "   flush privileges;"
+	echo "   delete from user where user='root' or user='';"
+	echo "									"
+	echo "                      制作:黄振国    2012年6月22日    QQ:57221015"
+	echo "###########################################################################"
+	;;
+
+	*)
+	echo "选择错误，请重选"
+	./LNMP.sh
+	;;
+esac
+
+
+
+/usr/local/pureftpd/bin/pure-pw useradd sgd -u webuser -d /data/www/sgd.01network.cn/
+/usr/local/pureftpd/bin/pure-pw mkdb
