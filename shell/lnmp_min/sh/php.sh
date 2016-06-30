@@ -7,12 +7,6 @@
 #./php.sh install_m   多版本安装 路径在  /usr/local/$php_version
 #./php.sh change_version 切换php版本
 
-
-
-
-
-
-
 . fun.sh
 #获取当前路径
 cur_dir=$(pwd)
@@ -126,8 +120,6 @@ change_php_version(){
    chmod 755 /etc/init.d/php-fpm
    service php-fpm restart
 }
-
-
 
 
 echo `date +"%Y-%m-%d %H:%M:%S"`

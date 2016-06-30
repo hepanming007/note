@@ -93,21 +93,10 @@ class Http
         return $this;
     }
 
-    public function set_header($name, $value)
-    {
-        $name = $this->normalize_header($name);
-        $this->request_headers[$name] = $value;
-
-        return $this;
-    }
-
+ 
     public function set_headers(array $headers)
     {
-        foreach ($headers as $name => $value) {
-            $name = $this->normalize_header($name);
-            $this->request_headers[$name] = $value;
-        }
-
+        $this->request_headers = $headers;
         return $this;
     }
 
