@@ -1,6 +1,15 @@
 <?php
 /**
  * Class SqlHelper  sql语句工具类
+	插入
+	$job_content['values'][0] = SqlHelper::insert_values($job_arr);
+	$job_content['field'] = SqlHelper::insert_field(array_keys($preg_rules));
+	echo SqlHelper::batch_insert_sql('job_content',$job_content).';';
+	更新
+	$job_content['field_arr'] = array_keys($preg_rules);
+	$job_content['field'] = SqlHelper::insert_field($job_content['field_arr']);
+	$job_content['values'][0] = SqlHelper::insert_values($job_arr);
+	echo SqlHelper::batch_update_sql('job_content',$job_content);
  */
 class SqlHelper
 {
