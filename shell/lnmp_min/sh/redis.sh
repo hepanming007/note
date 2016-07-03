@@ -1,14 +1,14 @@
 #!/bin/bash
 . fun.sh
+#获取当前路径
+cur_dir=$(pwd)
+#读取config变量
+eval `cat ./config.ini`
+#进入安装包目录
+echo $download_dir && cd $download_dir
 install_redis()
 {
     echo "====== Installing Redis ======"
-    #获取当前路径
-    cur_dir=$(pwd)
-    #读取config变量
-    eval `cat ./config.ini`
-    #进入安装包目录
-    echo $download_dir && cd $download_dir
     #解压安装包
     tar xzvf $redis_version.tar.gz
     #进入redis源文件目录
@@ -39,7 +39,6 @@ install_redis()
 uninstall_redis()
 {
     echo "You will uninstall Redis..."
-    Press_Start
     sed -i '/redis.so/d' /usr/local/php/etc/php.ini
     restart_php
     remove_start_up redis
