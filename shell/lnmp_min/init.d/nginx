@@ -1,0 +1,120 @@
+#! /bin/bash
+#
+# nginx          Start/Stop the nginx daemon.
+#
+# chkconfig: - 85 15
+# description: nginx
+# processname: nginx
+# config: /usr/local/nginx/conf/nginx.conf
+# pidfile: /usr/local/nginx/var/nginx.pid
+
+# Source function library.
+. /etc/init.d/functions
+
+# Nginx Settings
+NGX_PID_FILE='/usr/local/nginx/var/nginx.pid'
+NGX_PROC='/usr/local/nginx/sbin/nginx'
+NGX_LOCK_FILE='/var/lock/subsys/nginx'
+
+# Progran name
+prog="nginx"
+
+start() {
+        ulimit -HSn 65536
+	echo -n $"Starting $prog: "
+        if [ -e $NGX_LOCK_FILE ]; then
+	    if [ -e $NGX_PID_FILE ] && [ -e /proc/`cat $NGX_PID_FILE` ]; then
+		echo -n $"cannot start $prog: nginx is already running."
+		failure $"cannot start $prog: nginx is already running."
+		echo
+		return 1
+	    fi
+	fi
+	$NGX_PROC
+	RETVAL=$?
+	[ $RETVAL -eq 0 ] && success $"$prog start" || failure $"$prog start"
+	[ $RETVAL -eq 0 ] && touch $NGX_LOCK_FILE
+	echo
+
+
+	return $RETVAL
+}
+
+stop() {
+	echo -n $"Stopping $prog: "
+        if [ ! -e $NGX_LOCK_FILE ] || [ ! -e $NGX_PID_FILE ]; then
+	    echo -n $"cannot stop $prog: nginx is not running."
+	    failure $"cannot stop $prog: nginx is not running."
+	    echo
+	    return 1
+	fi
+	PID=`cat $NGX_PID_FILE`
+	if checkpid $PID 2>&1; then
+	    # TERM first, then KILL if not dead
+	    kill -TERM $PID >/dev/null 2>&1
+	    usleep 100000
+	    if checkpid $PID && sleep 1 && checkpid $PID && sleep 3 && checkpid $PID; then
+		kill -KILL $PID >/dev/null 2>&1
+		usleep 100000
+	    fi
+	fi
+	checkpid $PID
+	RETVAL=$((! $?))
+	[ $RETVAL -eq 0 ] && success $"$prog shutdown" || failure $"$prog shutdown"
+        [ $RETVAL -eq 0 ] && rm -f $NGX_LOCK_FILE;
+	echo
+
+
+	return $RETVAL
+}
+
+status() {
+	status $prog
+}
+
+restart() {
+  	stop
+	start
+}
+
+reload() {
+	echo -n $"Reloading $prog: "
+	if [ ! -e $NGX_LOCK_FILE ] || [ ! -e $NGX_PID_FILE ]; then
+	    echo -n $"cannot reload $prog: nginx is not running."
+	    failure $"cannot reload $prog: nginx is not running."
+	    echo
+	    return 1
+	fi
+	kill -HUP `cat $NGX_PID_FILE` >/dev/null 2>&1
+	RETVAL=$?
+	[ $RETVAL -eq 0 ] && success $"$prog reload" || failure $"$prog reload"
+	echo
+	return $RETVAL
+}
+
+case "$1" in
+  start)
+  	start
+	;;
+  stop)
+  	stop
+	;;
+  restart)
+  	restart
+	;;
+  reload)
+  	reload
+	;;
+  status)
+  	status
+	;;
+  condrestart)
+  	[ -f $NGX_LOCK_FILE ] && restart || :
+	;;
+  configtest)
+	$NGX_PROC -t
+	;;
+  *)
+	echo $"Usage: $0 {start|stop|status|reload|restart|condrestart|configtest}"
+	exit 1
+esac

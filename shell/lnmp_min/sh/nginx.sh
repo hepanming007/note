@@ -13,7 +13,7 @@ cur_dir=$(pwd)
 eval `cat ../config.ini`
 
 #进入安装包目录
-cd ../soft
+cd ../src
 
 #解压安装包
 tar xzvf nginx-$nginx_version.tar.gz
@@ -40,10 +40,10 @@ mkdir -p /data/logs/www.test.com/
 
 #备份并修改nginx.conf
 mv /usr/local/nginx/conf/nginx.conf /usr/local/nginx/conf/nginx.conf.bak
-cat $cur_dir/nginx.conf > /usr/local/nginx/conf/nginx.conf
+cat $config_dir/nginx/nginx.conf > /usr/local/nginx/conf/nginx.conf
 
 #配置测试子站信息
-cat $cur_dir/webserver.conf > /usr/local/nginx/conf/vhosts/www.test.com.conf
+cat $config_dir/webserver.conf > /usr/local/nginx/conf/vhosts/www.test.com.conf
 
 #定时切割日志
 cat $cur_dir/logcron.sh > /usr/local/nginx/sbin/logcron.sh
@@ -55,9 +55,7 @@ echo "0 0 * * * /bin/bash  /usr/local/nginx/sbin/logcron.sh" >> /var/spool/cron/
 chmod +x /usr/local/nginx/sbin/logcron.sh
 
 #设置服务脚本,创建NGINX开机启动脚本
-
-cat $cur_dir/nginx > /etc/init.d/nginx
-
+cat $init_d_dir/nginx > /etc/init.d/nginx
 #为 nginx.sh 脚本设置可执行属性
 chmod +x /etc/init.d/nginx
 

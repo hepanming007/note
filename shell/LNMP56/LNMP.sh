@@ -16,7 +16,6 @@ chmod +x $LNMP_dir/0yum163/yum163.sh
 chmod +x $LNMP_dir/1nginxsh/nginxsetup.sh
 chmod +x $LNMP_dir/2mysqlsh/mysqlsetup.sh
 chmod +x $LNMP_dir/3phpsh/phpsetup.sh
-
 #输出提示框
 echo "###########################################"
 echo "0、安装基础组件，自动更新时间"
@@ -29,6 +28,7 @@ echo " "
 echo "请输入要选择项目的数字(0,1,2,3,4,5,6,7,8,9):"
 read num
 echo "您所选的项目是$num"
+
 
 
 #条件分支
