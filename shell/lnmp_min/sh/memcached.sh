@@ -33,6 +33,21 @@ install_memcached(){
     fi
 }
 
+
+un_install_memcached(){
+    echo "You will uninstall Memcached..."
+    sed -i '/memcache.so/d' /usr/local/php/etc/php.ini
+    sed -i '/memcached.so/d' /usr/local/php/etc/php.ini
+    restart_php
+    remove_start_up memcached
+    echo "Delete Memcached files..."
+    rm -rf /usr/local/libmemcached
+    rm -rf /usr/local/memcached
+    rm -rf /etc/init.d/memcached
+    rm -rf /usr/bin/memcached
+    echo "Uninstall Memcached completed."
+}
+
 echo `date +"%Y-%m-%d %H:%M:%S"`
 #main call
 action=$1

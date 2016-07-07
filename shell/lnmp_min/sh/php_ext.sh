@@ -55,11 +55,12 @@ memcached_ext(){
         cd php-memcached
     else
         download_files http://pecl.php.net/get/${memcached_version}.tgz ${memcached_version}.tgz
-        tar -zxvf  ${memcached_version}.tgz ${memcached_version}
+        tar -zxvf  ${memcached_version}.tgz ${memcached_version} && cd $memcached_version
     fi
     /usr/local/php/bin/phpize
-    ./configure --with-php-config=/usr/local/php/bin/php-config --enable-memcached --with-libmemcached-dir=/usr/local/libmemcached
+    ./configure --with-php-config=/usr/local/php/bin/php-config --enable-memcached --with-libmemcached-dir=/usr/local/libmemcached --disable-memcached-sasl
     make && make install
+    echo  'extension = "memcached.so"' >>/usr/local/php/etc/php.ini
     echo "Install memcached php extension sucess..."
 }
 
