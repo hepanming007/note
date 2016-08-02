@@ -1,4 +1,39 @@
 <?php
+session_start();
+/****身份验证****/
+$accounts = array(
+    'test' => '123456',
+);  
+if(isset($_GET['logout'])){
+    session_clearn();
+    header('Location:http://'.str_replace('&logout=1','',$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']));
+}else if(!isset($_SERVER['PHP_AUTH_USER']) && empty($_SESSION["auth_user"] )){
+      page_401();
+}else {
+    $au = $_SERVER['PHP_AUTH_USER'];
+    if (isset($accounts[$au]) && $accounts[$au] ==$_SERVER['PHP_AUTH_PW']) {
+        $_SESSION["auth_user"] = $au;
+    } else {
+        session_clearn();
+        page_401();
+    }
+}
+
+function session_clearn(){
+    $_SESSION = array();
+    if (ini_get("session.use_cookies")) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 86400, $params["path"], $params["domain"], $params["secure"], $params["httponly"]
+        );
+    }
+    session_destroy();
+}
+
+function page_401(){
+      header('WWW-Authenticate: Basic realm="cncn.com"');
+      header('HTTP/1.0 401 Unauthorized');
+}
+/****身份验证****/
 error_reporting(E_ALL);
 define('LOG_PATH','./test/');
 $base_url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME'];
@@ -19,6 +54,7 @@ if(!(strpos($dir,'.')===false)){
 <input type="submit" value="search" style="width:70px;height:35px;">
 <input type="button" value="clearn" onclick="javascript:window.location.href='http://<?=$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME']?>'" style="width:70px;height:35px;">
 <input type="button" value="donwload" onclick="javascript:window.location.href='http://<?=$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'&download=1'?>'" style="width:70px;height:35px;">
+<input type="button" value="logout" onclick="javascript:window.location.href='http://<?=$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'&logout=1'?>'" style="width:70px;height:35px;">
 </form>
 <?php
 
