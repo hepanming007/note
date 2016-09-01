@@ -1,4 +1,8 @@
-var validate_from={
+var validate_form={
+    is_chinese:function(str){
+        var reg = /^([\u4e00-\u9fa5])+$/;
+        return reg.test(str);
+    },
     length:function(str){
         var len = 0;
         for (var i=0; i<str.length; i++) {
