@@ -1,0 +1,15 @@
+<?php 
+header('Content-type:text/html;charset=utf-8');
+/*状态查看程序*/
+$host = '192.168.1.12';
+$dbname = 'erp_zhuanxian_utf8';
+$username = 'zhuanxian_www';
+$password = 'jgs5ETGuKZN6';
+$charset = 'utf8';
+$dsn = "mysql:host={$host};port=3306;dbname={$dbname};charset={$charset};";
+$db = new PDO($dsn,$username,$password, array(PDO::ATTR_PERSISTENT=>true));
+
+$table = isset($_GET['table'])?$_GET['table']:'line_order';
+$data = $db->query("SELECT * FROM $table order by id desc limit 3")->fetchAll(PDO::FETCH_ASSOC);
+echo "<pre>";
+print_r($data);
