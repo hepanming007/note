@@ -10,7 +10,7 @@ useradd -d /dev/null -s /sbin/nologin webuser -u2001
 cur_dir=$(pwd)
 
 #读取config变量
-eval `cat ../config.ini`
+eval `cat ./config.ini`
 
 #进入安装包目录
 cd ../src
@@ -28,6 +28,7 @@ sed -i 's/'$nginx_version'/7.5.7600 16385/g;s/"nginx\/" NGINX_VERSION/"Microsoft
 ./configure --prefix=/usr/local/nginx --with-http_stub_status_module
 make && make install
 
+cd  $cur_dir
 #设置日志切割脚本每日切割日志，配置日志切割脚本
 mkdir /usr/local/nginx/var
 
@@ -43,7 +44,7 @@ mv /usr/local/nginx/conf/nginx.conf /usr/local/nginx/conf/nginx.conf.bak
 cat $config_dir/nginx/nginx.conf > /usr/local/nginx/conf/nginx.conf
 
 #配置测试子站信息
-cat $config_dir/webserver.conf > /usr/local/nginx/conf/vhosts/www.test.com.conf
+cat $config_dir/nginx/www.test.com.conf > /usr/local/nginx/conf/vhosts/www.test.com.conf
 
 #定时切割日志
 cat $cur_dir/logcron.sh > /usr/local/nginx/sbin/logcron.sh
@@ -62,3 +63,5 @@ chmod +x /etc/init.d/nginx
 #添加 Nginx 为系统服务（开机自动启动）
 chkconfig --add nginx
 chkconfig nginx on
+
+service nginx start
