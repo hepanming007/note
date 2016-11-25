@@ -64,7 +64,7 @@ class Excel
         }
         $th_all_keys    =    array_keys($th_arr['0']);
         $first_key_name = array_shift($th_all_keys);
-        $last_key_name  = array_pop($th_all_keys);
+       $last_key_name  = end($th_arr)['key'];
         foreach($list_arr as $list)
         {
             foreach($list as $key=>$list_detail){
