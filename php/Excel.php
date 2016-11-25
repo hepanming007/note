@@ -94,6 +94,34 @@ TOTAL;
         $excel_data = '<table>' . $th_str . $tr_str . $total_str . '</table>';
         return $excel_data;
     }
+    
+    public function excel_data(){
+       //  $tab="\t"; $br="\n";
+        $excel_data = '';
+        $th_str = '';
+        $tab="\t";
+        $br="\n";
+        $tr_str = '';
+        foreach ($th_arr as $key => $th) {
+            $th_str .= $this->charset($th['name']).$tab;
+        }
+        $th_str = $th_str.$br;
+        $th_all_keys    =    array_keys($th_arr['0']);
+        $first_key_name = array_shift($th_all_keys);
+        $last_key_name  = end($th_arr)['key'];
+        foreach($list_arr as $list)
+        {
+            foreach($list as $key=>$list_detail){
+                $tr_str .=  $this->charset($list_detail).$tab;
+                if($key==$last_key_name)
+                {
+                    $tr_str .= $br;
+                }
+            }
+        }
+        $excel_data =  $th_str . $tr_str  ;
+        return $excel_data;
+    }
 }
 
 
