@@ -67,6 +67,8 @@
         setParam:function(param,rules){
             this.param = param;
             this.rules = rules;
+            this.errorList = [];              
+
         },
         validate:function(){
             $.each(this.rules,function(i,data){
