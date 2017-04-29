@@ -16,7 +16,7 @@ echo_blue "this script will install php $version and php-fpm"
 #进入安装包目录
 echo $download_dir
 cd "$download_dir"
-echo_red "now in dir:".`pwd`
+echo_red "now in dir:" `pwd`
 #依赖性安装
 install_php_dependency(){
     yum install -y gcc gcc-c++ autoconf libjpeg libjpeg-devel \
@@ -39,8 +39,9 @@ install_php_single(){
     tar zxvf $php_version.tar.gz
     cd $php_version
     #编译安装
-    ./configure --prefix=/usr/local/php --with-config-file-path=/usr/local/php/etc --with-mysql=/usr/local/mysql \
-    --with-mysql-sock --with-mysqli=/usr/local/mysql/bin/mysql_config \
+    ./configure --prefix=/usr/local/php --with-config-file-path=/usr/local/php/etc --with-mysql=mysqlnd \
+    --with-mysql-sock --with-mysqli=mysqlnd\
+	--with-pdo-mysql=mysqlnd \
     --enable-fpm --enable-soap --with-libxml-dir --enable-cli \
     --with-openssl --with-mcrypt --with-mhash --with-pcre-regex --with-sqlite3 \
     --with-zlib --enable-bcmath --with-iconv --with-bz2 --enable-calendar --with-curl \
@@ -82,11 +83,11 @@ init_php_fpm(){
 ##使多单个版本共存
 install_php_mutil(){
     #解压php安装包
-    tar zxvf $php_version.tar.gz
+    tar -zxvf $php_version.tar.gz
     cd $php_version
     #编译安装
-    ./configure --prefix=/usr/local/$php_version --with-config-file-path=/usr/local/$php_version/etc --with-mysql=/usr/local/mysql \
-    --with-mysql-sock --with-mysqli=/usr/local/mysql/bin/mysql_config \
+    ./configure --prefix=/usr/local/$php_version --with-config-file-path=/usr/local/$php_version/etc --with-mysql=mysqlnd  \
+    --with-mysql-sock --with-mysqli=mysqlnd  \
     --enable-fpm --enable-soap --with-libxml-dir --enable-cli \
     --with-openssl --with-mcrypt --with-mhash --with-pcre-regex --with-sqlite3 \
     --with-zlib --enable-bcmath --with-iconv --with-bz2 --enable-calendar --with-curl \
@@ -95,6 +96,7 @@ install_php_mutil(){
     --with-freetype-dir --enable-gd-native-ttf --enable-gd-jis-conv --with-gettext --with-gmp \
     --with-mhash --enable-json --enable-mbstring --disable-mbregex --disable-mbregex-backtrack \
     --with-libmbfl --with-onig --enable-pdo --with-pdo-mysql --with-zlib-dir --with-pdo-sqlite \
+	--with-pdo-mysql=mysqlnd \
     --with-readline --enable-session --enable-shmop --enable-simplexml --enable-sockets \
     --enable-sysvmsg --enable-sysvsem --enable-sysvshm --enable-wddx \
     --with-libxml-dir --with-xsl --enable-zip --enable-mysqlnd-compression-support --with-pear \
